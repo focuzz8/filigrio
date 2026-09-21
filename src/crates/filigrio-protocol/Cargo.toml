@@ -1,0 +1,22 @@
+[package]
+name = "filigrio-protocol"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+filigrio-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = "0.1"
+
+[dev-dependencies]
+tempfile = "3"
+[features]
+# The control plane (mutations + daemon meta reads) is a compile-time surface:
+# clients that must be structurally incapable of expressing control ops (the
+# MCP bridge, ADR-0032f §2) depend with `default-features = false`, so the
+# `Command`/`ControlOp`/`MetaQuery` types are absent from their build.
+default = ["control"]
+control = []

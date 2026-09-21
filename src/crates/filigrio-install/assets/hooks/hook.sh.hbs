@@ -1,0 +1,23 @@
+{{marker_start}}
+# filigrio {{hook_name}} — refresh the knowledge graph after a {{transition}}.
+# Managed by `{{cli_bin}} hooks install`. Do not edit between the markers;
+# `{{cli_bin}} hooks uninstall` removes exactly this block and leaves the rest of
+# the hook alone.
+#
+# The block is deliberately thin: `filigrio hooks run` owns the git diff, the
+# delivery ladder (socket → spool → drop), the non-blocking behaviour, and the
+# `{{skip_env}}` opt-out — set {{skip_env}}=1 to disable. It always exits 0,
+# because a commit must never fail or stall on us (ADR-0032b §4). The `|| true`
+# is belt and braces, not the guarantee.
+#
+# The socket is named, and named *before* the verb. `--socket` is a global flag,
+# but `hooks run`'s own arguments are trailing and hyphen-tolerant — everything
+# after the event word is git's, verbatim — so this is the one position where the
+# CLI parses it. Leaving it out let `filigrio hooks run` fall back to the default
+# socket while the MCP registrations pointed at the one `install` was given: two
+# halves that can never meet, written by a single command that reported success.
+{{#if reads_stdin}}#
+# git feeds {{hook_name}} its old/new commit pairs on **stdin**, so nothing here
+# may read or redirect it.
+{{/if}}"{{cli_bin}}" --socket "{{socket_path}}" hooks run {{event}} "$@" || true
+{{marker_end}}

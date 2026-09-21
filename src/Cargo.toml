@@ -1,0 +1,45 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://example.invalid/filigrio"
+
+# Backbone / walking-skeleton implementation of the graphify → Rust port.
+# See ../hld.md (§3 crate topology, §4 ports) and ../migration-plan.md (Phase 0/1).
+# Real: crate boundaries, port traits, fs ingestion. Mock: parsing, resolution,
+# clustering, storage. The point is to prove the WIRING end to end.
+
+[workspace.dependencies]
+filigrio-core = { path = "crates/filigrio-core" }
+filigrio-ingest = { path = "crates/filigrio-ingest" }
+filigrio-index = { path = "crates/filigrio-index" }
+filigrio-resolve = { path = "crates/filigrio-resolve" }
+filigrio-store = { path = "crates/filigrio-store" }
+filigrio-query = { path = "crates/filigrio-query" }
+filigrio-client-mcp = { path = "crates/filigrio-client-mcp" }
+filigrio-pipeline = { path = "crates/filigrio-pipeline" }
+filigrio-protocol = { path = "crates/filigrio-protocol" }
+filigrio-client-core = { path = "crates/filigrio-client-core" }
+filigrio-install = { path = "crates/filigrio-install" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive"] }
+thiserror = "2"
+anyhow = "1"
+tokio = { version = "1", features = ["full"] }
+tree-sitter = "0.26"
+tree-sitter-rust = "0.24"
+tree-sitter-python = "0.23"
+tree-sitter-typescript = "0.23"
+petgraph = "0.8"
+fs2 = "0.4"
+libc = "0.2"
+tempfile = "3"
+tracing = "0.1"
+
+[profile.release]
+opt-level = 2

@@ -1,0 +1,28 @@
+---
+name: {{skill_name}}
+description: Navigate this codebase through its filigrio knowledge graph — call graphs, type relations, communities, and hubs — instead of grepping. Use for "what calls X", "who implements Y", "how does A reach B", and architecture questions.
+---
+
+# {{product}} — code navigation by knowledge graph
+
+Answer questions about this codebase by querying its **knowledge graph** through the
+`{{server_name}}` MCP tools; prefer the graph over reading files. The graph holds files,
+functions, types, and their edges.
+
+If the tools are missing, the `{{server_name}}` MCP server is not connected — check
+`{{registration_path}}` and that `{{bridge_bin}}` is on disk.
+
+## Tools
+
+| Tool | What it answers |
+|---|---|
+{{#each tools}}| `{{name}}` | {{summary}} |
+{{/each}}
+
+{{{body}}}
+
+## Keeping the graph fresh
+
+The graph is served by a background daemon over `{{socket_path}}`. It updates itself
+while `{{cli_bin}} project watch on` is running, and the installed git hooks refresh it
+at each commit. To force a synchronous update: `{{cli_bin}} project index`.

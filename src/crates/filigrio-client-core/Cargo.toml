@@ -1,0 +1,26 @@
+[package]
+name = "filigrio-client-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+# default-features = false: this shared client core must be usable by the
+# control-free MCP bridge (ADR-0032f §2) — it needs only connect/spawn/decode.
+# Clients that hold control privileges (the CLI) re-enable the `control`
+# feature on their own filigrio-protocol dependency.
+filigrio-protocol = { path = "../filigrio-protocol", default-features = false }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+fs2 = { workspace = true }
+libc = { workspace = true }
+tempfile = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+# The one-shot regression test stands up a single-accept responder and decodes
+# the framed request it receives — the wire body is JSON (filigrio-protocol
+# `frame`), so the test needs the same codec the daemon does.
+serde_json = { workspace = true }

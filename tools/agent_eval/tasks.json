@@ -1,0 +1,227 @@
+{
+  "tasks": [
+    {
+      "id": "overview",
+      "prompt": "How many projects make up this monorepo, and which single project is the largest by file count?",
+      "rubric": {
+        "answerIncludes": [
+          "usls"
+        ]
+      },
+      "_note": "AUTHORING: VERIFIED, unchanged. project_graph reports 'Projects: 17' and usls (libs/rust/usls, 398 files) is by far the largest; next is smart-camera-service at 84. The prompt asks for the COUNT too and the rubric does not check it — left unchecked deliberately: two of the 17 rows have files=0 (edgez-reflex, reflex-vr), so '17' is a defensible answer but so is '15', and pinning it would make the rubric an opinion. FLAG for the owner if the count should be graded."
+    },
+    {
+      "id": "hub",
+      "prompt": "What is the single most-connected symbol in this codebase (the top hub by edge count), and how many edges does it have?",
+      "rubric": {
+        "answerIncludes": [
+          "from",
+          "54"
+        ]
+      },
+      "_note": "FLAGGED FOR THE OWNER — RUBRIC KNOWN-WRONG, DELIBERATELY NOT CHANGED. It asserts 'from'/'54'; god_nodes today answers `Config [src=libs/rust/usls/src/config/impl.rs] - 601 edges` and `from` is not in the top 10. Every 2026-07-29 run answered Config/599 correctly, grounded, in ONE step, and was scored a failure. It was NOT re-pinned to Config/601 because the number is an artifact of a metric ADR-0036 section 5 records as open question 2: god_nodes scores per-node degree, and 473 of Config's 527 type/return edges are its own `with_*() -> Self` builder methods. The count also drifted 599 -> 601 within one day on an unchanged corpus, purely from the ADR-0036 section 5 extractor change. Three options, all decisions the owner should take, not the harness: (a) drop answerIncludes entirely and let the grounding gate judge it (the task then measures 'did you call god_nodes and cite the top node truthfully', which is metric-independent); (b) assert only 'Config' and accept re-pinning whenever OQ2 lands; (c) delete the task until OQ2 is decided. Recommendation: (a). Until then this task fails every run for a reason that is not the model's."
+    },
+    {
+      "id": "topic",
+      "prompt": "Find the error-handling code: which method converts a `ReflexError` into a `SystemEvent`? Name that method and the file it lives in.",
+      "rubric": {
+        "answerIncludes": [
+          "to_system_event",
+          "error.rs"
+        ]
+      },
+      "_note": "AUTHORING: VERIFIED, unchanged. get_node{label:'to_system_event'} is unique: `(impl ReflexError) [src=apps/reflex-smart-camera-service/src/error.rs loc=L517-L532]`, and its outgoing edges include `--> SystemEvent [type/return] [EXTRACTED]`, which is exactly the 'converts X into Y' the prompt asks for."
+    },
+    {
+      "_note": "AUTHORING: `from` is a 4-way homonym in x.rs (three `X<A>::from` + one `XView::from`), so the old prompt ('the top hub is `from`') addressed no particular node and the rubric's three names live on exactly ONE of them. Pinned by source span instead. Ground truth: get_neighbors{id:'fn:libs/rust/usls/src/tensor/x.rs:X<A>::from#112d5040', direction:'out', relations:['any'], include_unresolved:true} -> X [type/return], Self/from_vec/into_dyn/into_owned [calls][UNRESOLVED]; x.rs L35-L37 is `Self(Array::from_vec(x).into_dyn().into_owned())`. The count is deliberately not asserted: `Self` is a constructor artifact, so 'how many' has no stable answer. `into_dyn` was DROPPED from the rubric on purpose — it is also an outgoing call of the sibling homonym #6a19e764 (so it does not discriminate) and it is a substring of the real node `into_dyns`. `from_vec`+`into_owned` occur only on the intended node.",
+      "id": "trace",
+      "prompt": "In `libs/rust/usls/src/tensor/x.rs` several `from` constructors are defined; the one that builds an `X<A>` from a `Vec<A>` (around line 35) makes outgoing calls the graph could not bind to nodes. Address that specific node and name those calls.",
+      "rubric": {
+        "answerIncludes": [
+          "from_vec",
+          "into_owned"
+        ]
+      }
+    },
+    {
+      "_note": "AUTHORING: the old prompt said 'two other ReflexError helper methods'. It calls THREE — get_neighbors{label:'to_system_event', direction:'out', relations:['any'], include_unresolved:true} returns map_to_severity, map_to_event_component AND error_code, all `(impl ReflexError)`. A model that answered {map_to_severity, error_code} was right and scored wrong. Now asks for all three.",
+      "id": "cluster",
+      "prompt": "The error method `to_system_event` (in error.rs) builds a SystemEvent partly by calling other methods on `ReflexError` itself. Name every `ReflexError` method it calls.",
+      "rubric": {
+        "answerIncludes": [
+          "map_to_severity",
+          "map_to_event_component",
+          "error_code"
+        ]
+      }
+    },
+    {
+      "id": "which_app_uses_vision",
+      "prompt": "This is a monorepo with many projects. The heavy `usls` computer-vision library is only pulled in by one application service. Which service depends on usls, and (separately) what do the frontend apps depend on instead?",
+      "rubric": {
+        "answerIncludes": [
+          "smart-camera-service",
+          "api-client"
+        ]
+      },
+      "_note": "AUTHORING: `usls` appears verbatim in the prompt, so `answerIncludes:['usls']` was satisfied by any answer that echoed the question — only 'smart-camera-service' discriminated, and the second half of the question ('what do the frontend apps depend on instead') was not checked at all. Ground truth from project_graph: `smart-camera-service [root=apps/reflex-smart-camera-service files=84] -> usls` is the only project with a usls edge; the three frontends (@edgez/hominid-frontend, @edgez/cloud-frontend, @edgez/smart-camera-frontend) depend on @edgez/api-client and @edgez/shared. Added api-client so the second half is graded."
+    },
+    {
+      "id": "homonym_from_config",
+      "prompt": "Several completely different functions in this codebase share the name `from_config`. Find at least two of them and give the distinct files they are defined in — do not conflate them.",
+      "rubric": {
+        "answerIncludes": [
+          "engine.rs",
+          "processor"
+        ]
+      },
+      "_note": "AUTHORING: VERIFIED, unchanged, but note the population grew today. get_node{label:'from_config'} now returns FOUR candidates, not three: Engine (ort/engine.rs), ImageProcessor (processor/image/processor.rs), TextProcessor (processor/text/processor.rs) and — new since commit 4b7514f (ADR-0036 section 5, bodiless declarations are nodes) — the trait declaration `FromConfig::from_config` in libs/rust/usls/src/config/mod.rs, which has ZERO neighbours. The task asks for 'at least two', so it is still well-posed."
+    },
+    {
+      "id": "trace_execution_pipeline",
+      "maxSteps": 16,
+      "prompt": "Trace the call chain from `CpuTransformExecutor::execute_plan` (in processor/image/cpu.rs) to `dynres_moondream2`. `shortest_path` will not complete it — one hop is a call the graph could not bind to a node. Name the intermediate function, and for that final hop say why it is unresolved and confirm the call exists by reading the source.",
+      "rubric": {
+        "answerIncludes": [
+          "execute_dynres",
+          "dynres_moondream2",
+          "unresolved"
+        ],
+        "outcomes": [
+          "REACHES",
+          "DOES_NOT_REACH",
+          "PARTIAL"
+        ],
+        "expectedOutcome": [
+          "REACHES",
+          "PARTIAL"
+        ]
+      },
+      "_note": "AUTHORING: `execute_plan` is now a THREE-way homonym — CpuTransformExecutor (processor/image/cpu.rs), CudaPreprocessor (cuda/processor.rs) and, new since 4b7514f, the bodiless trait declaration TransformExecutor::execute_plan (processor/image/mod.rs). An undisambiguated `shortest_path{from:'execute_plan'}` returns an isError candidate list, which cost steps in every run. Named the CPU executor. Ground truth: get_neighbors{id:'fn:libs/rust/usls/src/processor/image/cpu.rs:CpuTransformExecutor::execute_plan', relations:['callees']} lists execute_dynres as a RESOLVED [EXTRACTED] callee; get_neighbors on execute_dynres lists `--> dynres_moondream2 [calls] [UNRESOLVED] (opaque receiver)`. So exactly one hop of the two is unresolved, which is what the prompt promises."
+    },
+    {
+      "id": "cuda_test_reaches_model",
+      "maxSteps": 26,
+      "_note": "AUTHORING: the test runs the SAME plan through BOTH executors (`cpu_executor.execute_plan` and `cuda_executor.execute_plan`, tests/cuda_resize_consistency.rs L48/L62), so 'which branch does this test take' had two correct answers and all three 2026-07-29 runs traced the CUDA one (-> preprocess_batch_device) and were scored wrong for it. The CPU executor is now named explicitly. Ground truth: the plan is `transforms: vec![ImageTransform::Resize(mode)]` (L38), and get_neighbors{id:'fn:libs/rust/usls/src/processor/image/cpu.rs:CpuTransformExecutor::execute_plan', relations:['callees']} lists execute_resize/execute_pad/execute_crop/execute_dynres — Resize selects execute_resize, so dynres_moondream2 is never reached.",
+      "prompt": "Does the CUDA resize-consistency test `run_resize_plan_cpu_cuda` (in libs/rust/usls/tests) actually reach `dynres_moondream2` at runtime? It runs its plan through `CpuTransformExecutor::execute_plan`, which dispatches on the transform kind. Name the method that THIS test's transforms dispatch to in that CPU executor, and say whether that path reaches the model code. Read the source to confirm the dispatch.",
+      "rubric": {
+        "answerIncludes": [
+          "execute_resize"
+        ],
+        "outcomes": [
+          "REACHES",
+          "DOES_NOT_REACH",
+          "PARTIAL"
+        ],
+        "expectedOutcome": "DOES_NOT_REACH"
+      }
+    },
+    {
+      "id": "builder_family",
+      "maxSteps": 16,
+      "prompt": "Functions like `with_name`, `with_version`, and `with_scale` form a family of `with_*` methods. Where are they defined (which module), and what design pattern does this family implement?",
+      "rubric": {
+        "answerIncludes": [
+          "config",
+          "builder"
+        ]
+      },
+      "_note": "AUTHORING: both old strings were free — 'with_version' appears verbatim in the prompt and 'config' matches 'Config'/'VideoConfig'/'configuration', so this task passed on any answer that restated the question. Ground truth: get_node on each shows with_name/with_version/with_scale are all `(impl Config)` in libs/rust/usls/src/config/impl.rs (L123-126, L133-136); with_name is a 3-way homonym (also InstanceMeta and TextStyle) so the Config one must be picked. Kept 'config' (the module, the answer to 'which module') and added 'builder' (the answer to 'what pattern'), which is the half that was never checked."
+    },
+    {
+      "id": "builder_method_callers",
+      "maxSteps": 12,
+      "prompt": "The builder method `with_version` (on Config) is invoked through builder chains, so most of its call sites cannot be bound to it as resolved edges. Is it actually used — roughly how many callers does it have — and how does the graph classify those call edges?",
+      "rubric": {
+        "answerIncludes": [
+          "with_version",
+          "unresolved"
+        ],
+        "outcomes": [
+          "USED",
+          "UNUSED"
+        ],
+        "expectedOutcome": "USED"
+      },
+      "_note": "AUTHORING: VERIFIED, unchanged. Ground truth: get_neighbors{label:'with_version', relations:['callers']} returns NO resolved callers; with relations:['any'] the only resolved incoming edge is `Config [contains]`. include_unresolved:true lists ~71 `[UNRESOLVED, by-name]` callers (main in examples/pose-estimation, config in examples/yolo/args.rs, and the whole crate::Config::* model-config family). So USED is correct and the count is ~71. The count is not asserted because it moves with the corpus."
+    },
+    {
+      "_note": "AUTHORING: the old rubric checked 3 strings of which 2 were free — `get_conn` appears verbatim in the prompt, and `inc` is a substring of 'since'/'include'/'increment' so the substring check is satisfied by ordinary prose. Only `set_ex` discriminated. Ground truth: get_neighbors{label:'get_conn', relations:['callers']} returns exactly five callers, all `(impl RedisStore)` in apps/reflex-smart-camera-service/src/state/redis_backend.rs — set_ex L50-57, set L44-48, reset L65-76, inc L59-63, clear. Asserting the four unambiguous ones; `inc` stays out of the rubric because it cannot be checked by substring.",
+      "id": "callers_of_get_conn",
+      "prompt": "In the redis backend (apps/reflex-smart-camera-service), the helper `get_conn` acquires a connection. Which functions call it? List all the calling functions by name.",
+      "rubric": {
+        "answerIncludes": [
+          "set_ex",
+          "reset",
+          "clear"
+        ]
+      }
+    },
+    {
+      "id": "compare_from_config_impls",
+      "maxSteps": 20,
+      "prompt": "Three different types each implement a `from_config` method: Engine (ort/engine.rs), ImageProcessor (processor/image), and TextProcessor (processor/text). For EACH of the three, name at least one distinct function it calls — showing the three do different work. Keep them separate; do not conflate.",
+      "rubric": {
+        "answerIncludes": [
+          "from_config_with_session",
+          "compile_image_plan",
+          "try_build_tokenizer"
+        ]
+      },
+      "_note": "AUTHORING: VERIFIED, unchanged. Ground truth, relations:['callees'] on each id: Engine::from_config -> from_config_with_session (only resolved callee); ImageProcessor::from_config -> CudaPreprocessor::new, compile_image_plan; TextProcessor::from_config -> try_build_tokenizer, LogitsSampler::new. All three asserted names are real and distinct. NOTE the risk this rubric carries: two of the three impls have TWO resolved callees, and a model naming the sibling (LogitsSampler::new instead of try_build_tokenizer) is equally correct and scores wrong — that is exactly what happened in run 16-30. Left as-is because the prompt says 'at least one distinct function', which makes the sibling legal; FLAG for the owner."
+    },
+    {
+      "id": "read_get_conn_body",
+      "prompt": "Look up the `get_conn` function node itself (the method, not the RedisStore type) to get its `loc=` line span, then read only that span from its source file and quote what its body does and the exact error message it produces on failure.",
+      "rubric": {
+        "answerIncludes": [
+          "Failed to get Redis connection from pool"
+        ]
+      },
+      "_note": "AUTHORING: 'pool' was a strict substring of the other assertion, so it checked nothing. Ground truth (redis_backend.rs L28-33): `Ok(self.pool.get().context(\"Failed to get Redis connection from pool\")?)`. The remaining string is exact and unique."
+    },
+    {
+      "_note": "AUTHORING: rubric asserted 3 of 5 storers. Ground truth: get_neighbors{label:'VideoConfig', relations:['stores']} returns five type/field sources — VP8FrameGenerator (video/sources/test_pattern.rs L12-14), GStreamerVideoSource (gstreamer.rs L16-19), GStreamerPipelineBuilder (gstreamer.rs L215-217), FFmpegVideoSource (ffmpeg.rs L158-161), FFmpegCommandBuilder (ffmpeg.rs L99-101). The distractors the prompt contrasts against are the five `takes` sources (VP8FrameGenerator::new, GStreamerVideoSource::with_config, GStreamerPipelineBuilder::new, FFmpegVideoSource::with_config, FFmpegCommandBuilder::new), which are FUNCTIONS, not structs.",
+      "id": "type_field_video_config",
+      "prompt": "In `apps/hominid-agent-service`, several structs hold a `VideoConfig` as a field while others merely take one as a parameter. Which structs STORE one — name all of them.",
+      "rubric": {
+        "answerIncludes": [
+          "FFmpegCommandBuilder",
+          "FFmpegVideoSource",
+          "GStreamerPipelineBuilder",
+          "GStreamerVideoSource",
+          "VP8FrameGenerator"
+        ]
+      }
+    },
+    {
+      "_note": "AUTHORING: the prompt says 'name all of them' and the rubric asserted 3 of 6, so a half-answer passed. Ground truth: get_neighbors{label:'ResolvedColors', relations:['produces']} returns exactly six type/return sources, all on DrawContext in libs/rust/usls/src/annotator/draw_ctx.rs: resolve_text_colors L162-191, resolve_prob_colors L106-140, resolve_polygon_colors L82-103, resolve_obb_colors L44-55, resolve_keypoint_colors L58-79, resolve_hbb_colors L30-41.",
+      "id": "type_return_resolved_colors",
+      "prompt": "The usls annotator has a `ResolvedColors` struct. Which functions PRODUCE one — that is, declare `ResolvedColors` as their return type? Name all of them.",
+      "rubric": {
+        "answerIncludes": [
+          "resolve_hbb_colors",
+          "resolve_obb_colors",
+          "resolve_keypoint_colors",
+          "resolve_polygon_colors",
+          "resolve_prob_colors",
+          "resolve_text_colors"
+        ]
+      }
+    },
+    {
+      "_note": "AUTHORING: rubric asserted 3 of 5. Ground truth: get_neighbors{label:'AppState', relations:['takes']} returns five type/param sources, all in apps/hominid-signalling-service/src/main.rs — websocket_handler L149-154, handle_websocket L156-318, get_rooms L356-364, forward_message_to_participant L320-339, create_room L345-354. Confirmed against the source: three take `State(state): State<AppState>`, one takes `state: AppState`, one takes `state: &AppState`.",
+      "id": "type_param_app_state",
+      "prompt": "The signalling service (`apps/hominid-signalling-service`) shares an `AppState`. Which functions TAKE it as a parameter? Some receive it wrapped as `State<AppState>` or behind a reference — those count too. List all of them by name.",
+      "rubric": {
+        "answerIncludes": [
+          "websocket_handler",
+          "handle_websocket",
+          "get_rooms",
+          "create_room",
+          "forward_message_to_participant"
+        ]
+      }
+    }
+  ]
+}

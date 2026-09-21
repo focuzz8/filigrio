@@ -1,0 +1,71 @@
+[package]
+name = "filigrio-install"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# The installation surface (ADR-0034, amended 2026-07-29). A **library** only —
+# `filigrio-client-cli` owns the verbs; this crate owns the artifacts.
+#
+# Dependency discipline (ADR-0032f §1, the engine-free client): nothing here may
+# pull the engine (`filigrio-core`/`-pipeline`/`-index`/`-store`/`-query`/
+# `-resolve`/`-ingest`) into the CLI's link graph. There is not even a
+# `filigrio-protocol` dependency: the installer *writes files*, it does not talk
+# to the daemon, and the socket path it needs is passed in by the caller.
+# `crates/filigrio-install/tests/dependency_hygiene.rs` holds that as a test.
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+# `preserve_order` so a rewrite of a user's `.mcp.json` keeps their key order —
+# the round-trip promise is "we removed our entry", not "we reformatted your
+# file". Costs an `indexmap`; that is the whole point of the feature.
+serde_json = { workspace = true, features = ["preserve_order"] }
+# Codex's config is **TOML**, and `[mcp_servers.<name>]` has to be added to a
+# file the user owns — one that carries their model, provider and approval
+# settings, with their comments around them. `toml_edit` is format-preserving by
+# design (comments, key order, whitespace, quoting style all survive a round
+# trip), which is the only way the byte-exact reversibility contract holds; a
+# plain `toml` parse + re-serialise would reformat the file on the first
+# install. Measured, not assumed — see `toml_entry`'s round-trip tests.
+toml_edit = "0.25"
+# ADR-0034 §6 (amendment): text artifacts are rendered through a mustache-style
+# engine off a typed model, so adding a client format is adding a template file
+# rather than editing a renderer. handlebars over ramhorns because its model is
+# a plain `serde::Serialize` struct (no engine-specific derive) and it is not
+# self-described as experimental.
+handlebars = "6"
+# The completion generator reads the CLI's real `clap::Command`, so the verb
+# surface and the completions cannot drift (ADR-0034 §7).
+clap = { workspace = true }
+clap_complete = "4"
+# Every file this crate writes goes out as temp-file + fsync + rename, so a
+# crash or an ENOSPC mid-write cannot leave a user's `.mcp.json` or
+# `~/.codex/config.toml` truncated — the one hole the reversibility contract had.
+# `NamedTempFile::new_in` + `.persist` is that, with the O_EXCL naming and the
+# delete-on-drop cleanup already correct. Also a dev-dependency, for `tempdir`.
+tempfile = { workspace = true }
+# Hermes' config is **YAML**, the one format with no comment-preserving editor in
+# Rust — so this is used as a *locator*, never as an editor. `Marker::index()`
+# gives a byte offset per event, which is exactly what `yaml_block` needs to know
+# *where* to splice; the write is still a text splice that never re-emits, which
+# is what keeps the round trip byte-exact. Parsing and re-emitting through
+# `saphyr` (or `serde_yaml`) would strip the user's comments and make us the
+# fourth tool in ADR-0034 to reformat their config.
+#
+# It replaced ~140 lines of column-and-indent heuristics that were measurably
+# wrong: `"mcp_servers":` is the same key as `mcp_servers:` and the string
+# matcher did not think so, so an install wrote a *duplicate* top-level key.
+# A parser reports a scalar's value rather than its spelling, which retires that
+# whole class rather than the one instance.
+#
+# Pinned exactly: this is a `0.0.x` crate and semver gives no compatibility
+# guarantee below `0.1`, so an unreviewed minor is not something to opt into.
+# One transitive dependency (`arraydeque`), pure Rust, no C grammar — which is
+# why this and not `yamlpath`/tree-sitter-yaml, whose upstream is archived and
+# whose query API is self-described as not stable.
+saphyr-parser = "=0.0.11"
+
+[dev-dependencies]
+tempfile = { workspace = true }

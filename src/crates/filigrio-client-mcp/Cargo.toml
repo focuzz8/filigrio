@@ -1,0 +1,37 @@
+[package]
+name = "filigrio-client-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "filigrio-mcp"
+path = "src/main.rs"
+
+[dependencies]
+filigrio-core = { workspace = true }
+# ADR-0032f §2 structural least-privilege, sharpened by ADR-0042 F9: no
+# `control` feature — the control plane (`Command`/`ControlOp`/`MetaQuery`,
+# `daemon stop`, arbitrary mutation) is ABSENT from this build, and with the
+# narrow sliver surface retired the bridge can now express the **data plane and
+# nothing else**. The bridge holds the user's filesystem permissions, not the
+# agent's, so a mutation it exposed would be a confused deputy; MCP roots
+# (agent-scoped containment) is not built, and this line is what makes "no
+# mutation surface" a compile-time fact rather than a code-review promise.
+filigrio-protocol = { path = "../filigrio-protocol", default-features = false }
+filigrio-client-core = { path = "../filigrio-client-core" }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+filigrio-query = { workspace = true }
+tempfile = { workspace = true }
+# Tests only, and the direction matters: `tests/capability_doc_drift.rs` asks the
+# real binary for its `tools/list` and compares it to the capability doc's list.
+# A dev dependency is not linked into the shipped bridge, and the arrow must
+# never point the other way — `filigrio-install` links no filigrio crate at all
+# (`filigrio-install/tests/dependency_hygiene.rs`).
+filigrio-install = { workspace = true }

@@ -1,0 +1,15 @@
+<!-- managed by `filigrio agent install`; edits between the filigrio markers are overwritten -->
+## {{product}}
+
+This repository has a knowledge graph served over MCP by the `{{server_name}}` server
+({{bridge_bin}}). For codebase, architecture, call-graph, or dependency questions,
+query the graph before grepping or reading files wholesale — it returns a scoped
+subgraph, usually far smaller than raw search output.
+
+Tools: {{#each tools}}`{{name}}` ({{summary}}){{#unless @last}}, {{/unless}}{{/each}}.
+
+{{{body}}}
+
+If the tools are not available in this session, the `{{server_name}}` MCP server is not
+connected for this client. Registration is per-client; run
+`{{cli_bin}} agent status` to see what is wired.

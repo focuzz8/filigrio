@@ -1,0 +1,30 @@
+[package]
+name = "filigrio-classic"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "filigrio-classic"
+path = "src/main.rs"
+
+[features]
+# ADR-0040: passthrough to the oxc TS/JS frontend in filigrio-index. OFF by
+# default. `cargo build -p filigrio-classic --features ts-oxc` wires the oxc
+# extractor into the `filigrio-classic` binary's dispatch — this feature lives
+# here, on the engine-linked binary; the thin clients have no extractor to
+# select (the pre-0032f name for this crate was `filigrio-cli`, which is why
+# older docs point the command at that package).
+ts-oxc = ["filigrio-index/ts-oxc"]
+
+[dependencies]
+filigrio-core = { workspace = true }
+filigrio-ingest = { workspace = true }
+filigrio-index = { workspace = true }
+filigrio-resolve = { workspace = true }
+filigrio-store = { workspace = true }
+filigrio-query = { workspace = true }
+filigrio-client-mcp = { workspace = true }
+filigrio-pipeline = { workspace = true }
+clap = { workspace = true }
+anyhow = { workspace = true }

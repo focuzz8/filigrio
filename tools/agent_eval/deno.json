@@ -1,0 +1,21 @@
+{
+  "tasks": {
+    "test": "deno test -A src/",
+    "lint": "deno lint src/ main.ts",
+    "eval": "deno run -A --env-file main.ts"
+  },
+  "imports": {
+    "ai": "npm:ai@7.0.31",
+    "@ai-sdk/mcp": "npm:@ai-sdk/mcp@2.0.15",
+    "@ai-sdk/mcp/mcp-stdio": "npm:@ai-sdk/mcp@2.0.15/mcp-stdio",
+    "@ai-sdk/openai-compatible": "npm:@ai-sdk/openai-compatible@3.0.12",
+    "@ai-sdk/cerebras": "npm:@ai-sdk/cerebras@3.0.12",
+    "zod": "npm:zod@4.4.3",
+    "@std/assert": "jsr:@std/assert@^1"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}

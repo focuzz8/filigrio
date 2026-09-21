@@ -1,0 +1,32 @@
+[package]
+name = "filigrio-index"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+# ADR-0040 feasibility spike: oxc TS/JS frontend. OFF by default — the default
+# build and all existing tests must stay unaffected. Enable with
+# `--features ts-oxc`. Pinned exact (oxc is pre-1.0, moves fast).
+ts-oxc = ["dep:oxc"]
+
+[dependencies]
+filigrio-core = { workspace = true }
+tree-sitter = { workspace = true }
+tree-sitter-rust = { workspace = true }
+tree-sitter-python = { workspace = true }
+tree-sitter-typescript = { workspace = true }
+# ADR-0040 spike dep — feature-gated, off by default. Umbrella crate exact-pinned.
+oxc = { version = "=0.140.0", optional = true, features = ["semantic"] }
+
+[dev-dependencies]
+# Cross-backend conformance (ADR-0037 status doc P2, `tests/cross_backend_contract.rs`)
+# checks every node kind a backend mints against `filigrio_resolve::is_linkable` —
+# the **same** function the linker calls. That is the whole point: P3's defect was
+# a *copy* of the kind list drifting out of step with the kinds ADR-0037b added,
+# so the test must reach the authority, not restate it.
+#
+# Test-only and acyclic: neither lib depends on the other (both sit on
+# `filigrio-core`), and `filigrio-resolve` already dev-depends on `filigrio-index`
+# for its own corpus harness — this is the same seam, walked the other way.
+filigrio-resolve = { workspace = true }

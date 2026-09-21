@@ -1,0 +1,23 @@
+src/target/
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+
+# Graph output — ours (`.filigrio-out/`) and the oracle's (`graphify-out/`).
+#
+# Both patterns are **unanchored on purpose**: they match at any depth. The
+# previous form listed two specific paths, which is how a 416 MB `.filigrio-out/`
+# accumulated inside the next.js benchmark corpus (see `docs/perf/benchmarks.md`
+# §9.2) — left there by a run that used the default store location.
+#
+# This is not only repo hygiene. The walker honours `.gitignore` (ADR-0022), so
+# an un-ignored output directory is a directory the engine will **ingest as
+# corpus on the next run** — it indexes its own output, inflating node counts
+# with its own artifacts. Ignoring it is what makes that self-ingestion
+# impossible.
+.filigrio-out/
+graphify-out/

@@ -1,0 +1,6 @@
+.store/
+runs/
+node_modules/
+# secrets — PROVIDER_API_KEY etc. live here; never commit
+.env
+.env.local

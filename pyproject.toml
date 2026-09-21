@@ -1,0 +1,19 @@
+[project]
+name = "filigrio-port-tools"
+version = "0.1.0"
+description = "Dev tooling for the graphify→Rust port (oracle diff against Python graphify, etc.)"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+# Internal tooling, not a distributable package — uv manages the env + lockfile
+# but builds/installs nothing. Run tools as modules: `uv run python -m tools.<name>`.
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]                     # import `tools.*` from the repo root
+testpaths = ["tools/oracle_diff/tests"]
+addopts = "-ra"

@@ -1,0 +1,10 @@
+[package]
+name = "filigrio-store"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+parking_lot = "0.12"
+filigrio-core = { workspace = true }
+serde_json = { workspace = true }

@@ -1,0 +1,25 @@
+[package]
+name = "filigrio-resolve"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = ["oxc"]
+# `oxc`: the exact JS/TS `ModuleResolver` backend (oxc_resolver — webpack
+# enhanced-resolve + tsconfig-paths). Off → the hand-rolled source-only tier only.
+oxc = ["dep:oxc_resolver"]
+
+[dependencies]
+filigrio-core = { workspace = true }
+serde_json = { workspace = true }
+oxc_resolver = { version = "11", optional = true }
+
+[dev-dependencies]
+filigrio-store = { workspace = true }
+# ADR-0042 Phase 1.4 shadow/ledger corpus: real Rust extraction over this
+# workspace's own crates. `filigrio-index` depends only on `filigrio-core`, so
+# this dev-dependency introduces no cycle (unlike `filigrio-ingest`, which
+# depends on `filigrio-resolve`).
+filigrio-index = { workspace = true }
+tempfile = "3"

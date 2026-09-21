@@ -1,0 +1,116 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/assert@1": "1.0.19",
+    "jsr:@std/internal@^1.0.12": "1.0.14",
+    "npm:@ai-sdk/cerebras@3.0.12": "3.0.12_zod@4.4.3",
+    "npm:@ai-sdk/mcp@2.0.15": "2.0.15_zod@4.4.3",
+    "npm:@ai-sdk/openai-compatible@3.0.12": "3.0.12_zod@4.4.3",
+    "npm:ai@7.0.31": "7.0.31_zod@4.4.3",
+    "npm:zod@4.4.3": "4.4.3"
+  },
+  "jsr": {
+    "@std/assert@1.0.19": {
+      "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.14": {
+      "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
+    }
+  },
+  "npm": {
+    "@ai-sdk/cerebras@3.0.12_zod@4.4.3": {
+      "integrity": "sha512-oiX0QI/uKLdmG2/r9oXzHafvNz0AnTPN60AlaTRBYpxtoYRHh7ZyYA4pSqaZH9h0IS2/Ph+VXFX+BZBJTLyHgQ==",
+      "dependencies": [
+        "@ai-sdk/openai-compatible",
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "zod"
+      ]
+    },
+    "@ai-sdk/gateway@4.0.23_zod@4.4.3": {
+      "integrity": "sha512-f85diFdPMXYJpxCjOYZchMQkRH8h3r6lhK4Q2xmzJ7UA2OQ80L3W7tFu61742xGQK7zHWm5AhxYhNuc50H9SGQ==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "@vercel/oidc",
+        "zod"
+      ]
+    },
+    "@ai-sdk/mcp@2.0.15_zod@4.4.3": {
+      "integrity": "sha512-JIwbud+pMM6GgXDhwm5/lSpg7y8kAO1JHJ4NQEmfST6nXy3Gijaxy4LIrKqVR/1N5VPZAfwOdSsUWtbtTp6zZw==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "pkce-challenge",
+        "zod"
+      ]
+    },
+    "@ai-sdk/openai-compatible@3.0.12_zod@4.4.3": {
+      "integrity": "sha512-tN9BUb4jUGjqtbRPUsziLxASfogLNICcq/Qrwr55vpnzKvprV6Ukl8ynED2lZaNrAHU5U4zlGnyU/iuYrjQK6g==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "zod"
+      ]
+    },
+    "@ai-sdk/provider-utils@5.0.11_zod@4.4.3": {
+      "integrity": "sha512-7/96wE+ZsKB35iS9ASyllrE4Ym/EolXEB7AkuJ5FI++fmS85BVTAs77890C+1Z2jwHfBKjBQSBmsliOsAh0iFQ==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@standard-schema/spec",
+        "@workflow/serde",
+        "eventsource-parser",
+        "zod"
+      ]
+    },
+    "@ai-sdk/provider@4.0.3": {
+      "integrity": "sha512-e0CpNWJUY7OxAFAnCZkw+ri9QOHWwTs1tXP42782KFGCU07qt8NiXCrCVowyCB5dP2r5/Uls+g2oPd8kOJn9dw==",
+      "dependencies": [
+        "json-schema"
+      ]
+    },
+    "@standard-schema/spec@1.1.0": {
+      "integrity": "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="
+    },
+    "@vercel/oidc@3.2.0": {
+      "integrity": "sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug=="
+    },
+    "@workflow/serde@4.1.0": {
+      "integrity": "sha512-pav4F2BoirECWR7Nf1TKt+2eETcBj7jj4cBefQ8VXQCA6NPkaKeLfj/zMgi+3zYV5ZIBT4GuUiphsj0/b9hPQQ=="
+    },
+    "ai@7.0.31_zod@4.4.3": {
+      "integrity": "sha512-pJfwKXjF5kw0rKRTePwYo60EfWb8wfzJAgf3ojln/YkOsVVKttzZAJVcRPsg37Z3a06ZdKkxX+DSrMAFlPm5Mw==",
+      "dependencies": [
+        "@ai-sdk/gateway",
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "zod"
+      ]
+    },
+    "eventsource-parser@3.1.0": {
+      "integrity": "sha512-kJezFj9YFAMLeORyi7aCLxLbD5/qWMQnoMVlVPyHIll7lgRJCc3JVln9Vgl9nwQi0YkMnhdGTMNn7CkRRAptMg=="
+    },
+    "json-schema@0.4.0": {
+      "integrity": "sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA=="
+    },
+    "pkce-challenge@5.0.1": {
+      "integrity": "sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ=="
+    },
+    "zod@4.4.3": {
+      "integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1",
+      "npm:@ai-sdk/cerebras@3.0.12",
+      "npm:@ai-sdk/mcp@2.0.15",
+      "npm:@ai-sdk/openai-compatible@3.0.12",
+      "npm:ai@7.0.31",
+      "npm:zod@4.4.3"
+    ]
+  }
+}

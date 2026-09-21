@@ -13,7 +13,7 @@ use filigrio_core::{ChangeSet, Error, Priority, Result};
 use notify::event::{AccessKind, AccessMode};
 use notify::{EventKind, RecommendedWatcher, RecursiveMode};
 use notify_debouncer_full::{
-    new_debouncer, DebounceEventResult, DebouncedEvent, Debouncer, NoCache,
+    new_debouncer, DebounceEventResult, DebouncedEvent, Debouncer, RecommendedCache,
 };
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::Sender;
@@ -42,7 +42,10 @@ pub struct FsWatcher {
     /// For tracing only — this producer carries no host `Project`/`Command` concept.
     id: String,
     config: WatcherConfig,
-    _debouncer: Option<Debouncer<RecommendedWatcher, NoCache>>,
+    // `RecommendedCache`, not a concrete cache: `new_debouncer` returns the
+    // platform's recommended one, and that alias resolves to `NoCache` on
+    // Linux/Android but `FileIdMap` elsewhere (macOS, Windows).
+    _debouncer: Option<Debouncer<RecommendedWatcher, RecommendedCache>>,
 }
 
 impl FsWatcher {
@@ -178,7 +181,7 @@ impl Producer for FsWatcher {
         // go stale"; the rebuild below is what keeps that true here.
         let mut boundary = SourceBoundary::new(root.clone());
 
-        let mut debouncer: Debouncer<RecommendedWatcher, NoCache> = new_debouncer(
+        let mut debouncer: Debouncer<RecommendedWatcher, RecommendedCache> = new_debouncer(
             self.config.debounce,
             None, // No tick callback
             move |result: DebounceEventResult| {
